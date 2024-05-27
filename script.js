@@ -76,12 +76,16 @@ const products = [
 const productsWrapper = document.querySelector('#products-wrapper');
 const checkboxes = document.querySelectorAll('.check');
 const filterContainer = document.querySelector('#filters-container');
-const serachInput = document.querySelector('#search');
+const searchInput = document.querySelector('#search');
 const cartCount = document.querySelector('#cart-count');
 
 let cartItemCount = 0;
 
 const productElements = [];
+
+// Event listeneres for filtering
+filterContainer.addEventListener('change', filterProducts);
+searchInput.addEventListener('input', filterProducts);
 
 products.forEach(product => {
  const productElement = createProductElement(product);
@@ -123,11 +127,38 @@ function updateCart(e) {
   statusEl.innerText = "Add To Cart";
   statusEl.classList.add('bg-gray-800');
   statusEl.classList.remove('bg-red-600');
+
+  cartItemCount--;
  } else {
   //Add to cart
   statusEl.classList.add('added');
   statusEl.innerText = "Remove From Cart";
   statusEl.classList.remove('bg-gray-800');
   statusEl.classList.add('bg-red-600');
+  cartItemCount++
  }
+
+ cartCount.innerText = cartItemCount.toString();
+}
+
+function filterProducts() {
+ const searchTerm = searchInput.value.trim().toLocaleLowerCase();
+ const checkedCategories = Array.from(checkboxes)
+ .filter((check) => check.checked)
+ .map(check => check.id);
+
+ productElements.forEach((productElement,index) => {
+  const product = products[index];
+
+  //check to see if the product matches the search or the checked categories
+  const matchesSearchTerm  = product.name.toLowerCase().includes(searchTerm);
+  const isInCheckedCategory = checkedCategories.length === 0 || checkedCategories.includes(product.category);
+
+  if(matchesSearchTerm && isInCheckedCategory) {
+   productElement.classList.remove('hidden');
+  }else {
+   productElement.classList.add('hidden');
+  }
+ });
+
 }
